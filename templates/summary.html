@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>AI Summary</title>
+
+<link
+rel="stylesheet"
+href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI Summary</h1>
+
+    <div class="summary-box">
+
+        <h2>Summary</h2>
+
+        <p>{{ summary }}</p>
+
+    </div>
+
+    <br>
+
+    <h2>Key Concepts</h2>
+
+<div class="summary-box">
+
+{% for concept in concepts %}
+
+<p>• {{ concept }}</p>
+
+{% endfor %}
+
+</div>
+
+<br>
+
+    <h2>Quiz Questions</h2>
+
+    <div class="summary-box">
+
+        {% for question in quiz %}
+
+            <p>{{ question }}</p>
+
+        {% endfor %}
+
+    </div>
+
+    <br>
+
+    <a href="/">
+
+        <button>
+            Upload Another PDF
+        </button>
+
+    </a>
+
+</div>
+
+</body>
+
+</html>

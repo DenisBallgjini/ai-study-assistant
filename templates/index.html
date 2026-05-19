@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI Study Assistant</title>
+
+    <link
+    rel="stylesheet"
+    href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI Study Assistant</h1>
+
+    <p>
+        Upload lecture notes or PDFs and
+        generate smart summaries.
+    </p>
+
+    <form
+        action="/upload"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <input
+            type="file"
+            name="pdf"
+            required
+        >
+
+        <br><br>
+
+        <button type="submit">
+            Upload PDF
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+
+</html>

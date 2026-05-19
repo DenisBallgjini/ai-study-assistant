@@ -37,7 +37,7 @@ ai-study-assistant/
 Clone repository:
 
 ```bash
-git clone https://github.com/YOURUSERNAME/ai-study-assistant.git
+git clone https://github.com/DenisBallgjini/ai-study-assistant.git
 ```
 
 Install requirements:

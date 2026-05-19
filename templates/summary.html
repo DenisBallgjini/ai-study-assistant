@@ -3,11 +3,10 @@
 
 <head>
 
-<title>AI Summary</title>
+    <title>AI Study Assistant</title>
 
-<link
-rel="stylesheet"
-href="/static/css/style.css">
+    <link rel="stylesheet"
+    href="/static/css/style.css">
 
 </head>
 
@@ -15,7 +14,8 @@ href="/static/css/style.css">
 
 <div class="container">
 
-    <h1>AI Summary</h1>
+    <h1>AI Study Assistant</h1>
+
 
     <div class="summary-box">
 
@@ -27,51 +27,60 @@ href="/static/css/style.css">
 
     <br>
 
+
     <h2>Key Concepts</h2>
 
-<div class="summary-box">
+    <div class="summary-box">
 
-{% for concept in concepts %}
+        {% for concept in concepts %}
 
-<p>• {{ concept }}</p>
+            <p>• {{ concept }}</p>
 
-{% endfor %}
+        {% endfor %}
 
-</div>
+    </div>
 
-<br>
+    <br>
 
-<h2>Flashcards</h2>
 
-<div class="summary-box">
+    <h2>Study Mode</h2>
 
-{% for card in flashcards %}
+    <div class="summary-box">
 
-<div class="flashcard">
+        <div id="study-card" class="flashcard">
 
-<p>
+            <p id="question">
 
-<b>Q:</b>
+                <b>Q:</b>
 
-{{ card.question }}
+                {{ flashcards[0]["question"] }}
 
-</p>
+            </p>
 
-<div class="answer">
+            <div
+            id="answer"
+            class="answer">
 
-<b>A:</b>
+                <b>A:</b>
 
-{{ card.answer }}
+                {{ flashcards[0]["answer"] }}
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-{% endfor %}
+        <br>
 
-</div>
+        <button onclick="nextCard()">
 
-<br>
+            Next Card
+
+        </button>
+
+    </div>
+
+    <br>
+
 
     <h2>Quiz Questions</h2>
 
@@ -87,15 +96,89 @@ href="/static/css/style.css">
 
     <br>
 
+
+    <h2>Ask Your Notes</h2>
+
+    <div class="summary-box">
+
+        <form
+        action="/ask"
+        method="POST">
+
+            <input
+            type="text"
+            name="question"
+            placeholder="Ask something about your notes..."
+            required>
+
+            <br><br>
+
+            <button type="submit">
+
+                Ask
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <br>
+
+
     <a href="/">
 
         <button>
+
             Upload Another PDF
+
         </button>
 
     </a>
 
 </div>
+
+
+<script id="flashcards-data" type="application/json">
+{{ flashcards|tojson|safe }}
+</script>
+
+<script>
+
+let current = 0;
+
+const studyCards = JSON.parse(
+document.getElementById(
+"flashcards-data"
+).textContent
+);
+
+function nextCard(){
+
+    current++;
+
+    if(current >= studyCards.length){
+
+        current = 0;
+
+    }
+
+    document.getElementById(
+        "question"
+    ).innerHTML =
+    "<b>Q:</b> " +
+    studyCards[current].question;
+
+
+    document.getElementById(
+        "answer"
+    ).innerHTML =
+    "<b>A:</b> " +
+    studyCards[current].answer;
+
+}
+
+</script>
 
 </body>
 

@@ -52,6 +52,24 @@ def extract_concepts(text):
 
     return concepts
 
+def generate_flashcards(concepts):
+
+    flashcards = []
+
+    for concept in concepts:
+
+        flashcards.append({
+
+            "question":
+            f"What is {concept}?",
+
+            "answer":
+            f"{concept} is an important concept detected in your notes."
+
+        })
+
+    return flashcards
+
 
 @app.route("/")
 def home():
@@ -89,12 +107,17 @@ def upload():
 
         concepts = extract_concepts(text)
 
+        flashcards = generate_flashcards(
+    concepts
+)
+
         return render_template(
-            "summary.html",
-            summary=summary,
-            quiz=quiz,
-            concepts=concepts
-        )
+    "summary.html",
+    summary=summary,
+    quiz=quiz,
+    concepts=concepts,
+    flashcards=flashcards
+)
 
     return "No file uploaded"
 

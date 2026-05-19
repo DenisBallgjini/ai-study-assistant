@@ -100,3 +100,28 @@ button:hover {
 
     overflow-y: auto;
 }
+
+.flashcard {
+
+    background:#333;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    margin-bottom:20px;
+
+    cursor:pointer;
+}
+
+.answer{
+
+    display:none;
+
+    margin-top:10px;
+}
+
+.flashcard:hover .answer{
+
+    display:block;
+}

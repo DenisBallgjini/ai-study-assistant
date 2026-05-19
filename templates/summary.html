@@ -41,6 +41,38 @@ href="/static/css/style.css">
 
 <br>
 
+<h2>Flashcards</h2>
+
+<div class="summary-box">
+
+{% for card in flashcards %}
+
+<div class="flashcard">
+
+<p>
+
+<b>Q:</b>
+
+{{ card.question }}
+
+</p>
+
+<div class="answer">
+
+<b>A:</b>
+
+{{ card.answer }}
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<br>
+
     <h2>Quiz Questions</h2>
 
     <div class="summary-box">

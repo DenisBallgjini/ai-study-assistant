@@ -1,2 +1,4 @@
 uploads/
 __pycache__/
+app.py.backup
+.flask_secret_key

@@ -1,38 +1,45 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from PyPDF2 import PdfReader
+from PyPDF2.errors import PdfReadError
 from collections import Counter
 import os
 import re
+import uuid
+from pathlib import Path
+
+secret_file = Path(".flask_secret_key")
+if not secret_file.exists():
+    secret_file.write_text(os.urandom(32).hex())
+    secret_file.chmod(0o600)
 
 app = Flask(__name__)
+app.secret_key = secret_file.read_text().strip()
 
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
-stored_text = ""
 
 
 def create_summary(text):
+    sentences = [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", text)
+        if len(sentence.strip()) > 40
+    ]
 
-    sentences = text.split(".")
+    if not sentences:
+        return "No sufficient text found to summarize."
+
+    max_points = min(8, len(sentences))
+    selected = []
+
+    for i in range(max_points):
+        index = i * len(sentences) // max_points
+        selected.append(sentences[index])
 
     summary = "📌 Main Points\n\n"
-
-    count = 0
-
-    for sentence in sentences:
-
-        sentence = sentence.strip()
-
-        if len(sentence) > 40:
-
-            summary += "• " + sentence + "\n\n"
-
-            count += 1
-
-        if count == 8:
-
-            break
+    summary += "\n\n".join("• " + sentence for sentence in selected)
 
     return summary
 
@@ -127,37 +134,46 @@ def home():
 @app.route("/upload", methods=["POST"])
 def upload():
 
-    global stored_text
 
-    file = request.files["pdf"]
+    file = request.files.get("pdf")
+
+    if not file or not file.filename:
+        return "Please select a PDF file.", 400
+
+    if not file.filename.lower().endswith(".pdf"):
+        return "Only PDF files are allowed.", 400
 
     if file:
 
         filepath = os.path.join(
             app.config["UPLOAD_FOLDER"],
-            file.filename
+            f"{uuid.uuid4().hex}.pdf"
         )
 
         file.save(filepath)
 
-        reader = PdfReader(
-            filepath
-        )
+        try:
+            reader = PdfReader(filepath)
+            text = ""
 
-        text = ""
+            for page in reader.pages:
+                extracted = page.extract_text()
 
-        for page in reader.pages:
+                if extracted:
+                    text += extracted + "\n"
 
-            extracted = page.extract_text()
+        except (PdfReadError, ValueError, OSError, KeyError):
+            os.remove(filepath)
+            return "Unable to read this PDF. Please upload a valid PDF file.", 400
 
-            if extracted:
+        if not text.strip():
+            os.remove(filepath)
+            return "This PDF contains no extractable text.", 400
 
-                text += extracted
-
-        stored_text = text
+        session["document_id"] = os.path.basename(filepath)
 
         summary = create_summary(
-            text[:3000]
+            text
         )
 
         quiz = generate_questions(
@@ -187,7 +203,23 @@ def upload():
 @app.route("/ask", methods=["POST"])
 def ask():
 
-    global stored_text
+    document_id = session.get("document_id")
+
+    if not document_id:
+        return "Please upload a PDF before asking questions.", 400
+
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], document_id)
+
+    if not os.path.isfile(filepath):
+        return "Your uploaded PDF is no longer available. Please upload it again.", 400
+
+    try:
+        reader = PdfReader(filepath)
+        stored_text = "\n".join(
+            page.extract_text() or "" for page in reader.pages
+        )
+    except (PdfReadError, ValueError, OSError, KeyError):
+        return "Unable to read your uploaded PDF.", 400
 
     question = request.form["question"]
 
